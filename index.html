@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Рилс-машина для бизнес-адвоката</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+
+    <style>
+        :root {
+            --paper: #f5f1ea;
+            --paper-2: #efe8dc;
+            --paper-3: #ede7dd;
+            --ink: #1a1816;
+            --ink-mute: #6b655d;
+            --ink-soft: #9b958c;
+            --accent: #c2410c;
+            --accent-soft: rgba(194, 65, 12, 0.08);
+            --rule: rgba(26, 24, 22, 0.14);
+            --rule-soft: rgba(26, 24, 22, 0.06);
+            --font-display: "Georgia", "Times New Roman", serif;
+            --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+        }
+
+        html, body { background: var(--paper); }
+        .reveal-viewport { background: var(--paper); }
+
+        .reveal {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 22px;
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .reveal .slides { text-align: left; }
+
+        .reveal .slides > section {
+            padding: 30px 56px 26px;
+            box-sizing: border-box;
+            width: 100%;
+            height: 900px;
+        }
+        .reveal .slides > section.present.cover,
+        .reveal .slides > section.present.divider,
+        .reveal .slides > section.present.toc,
+        .reveal .slides > section.present.quote-slide,
+        .reveal .slides > section.present.headline,
+        .reveal .slides > section.present.example,
+        .reveal .slides > section.present.script,
+        .reveal .slides > section.present.ending {
+            display: flex !important;
+            flex-direction: column;
+            height: 900px !important;
+        }
+
+        /* === TYPOGRAPHY === */
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            line-height: 1.05;
+        }
+        .reveal h1 em, .reveal h2 em, .reveal h3 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .reveal p { line-height: 1.55; }
+        .reveal strong { font-weight: 600; color: var(--ink); }
+
+        .reveal ul, .reveal ol { list-style: none; margin: 0; padding: 0; }
+        .reveal li { margin: 0.5em 0; line-height: 1.5; }
+
+        /* === EYEBROW === */
+        .eyebrow {
+            display: block;
+            font-size: 0.5em;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1em;
+        }
+        .eyebrow.muted { color: var(--ink-mute); }
+
+        /* === RULES === */
+        .rule {
+            display: block;
+            width: 60px;
+            border-top: 1px solid var(--ink);
+            margin: 0.7em 0 1em;
+        }
+
+        /* === RUNNER === */
+        .runner {
+            margin-top: auto;
+            padding-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.5em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            font-family: var(--font-body);
+        }
+        .runner em { font-style: italic; color: var(--accent); }
+
+        /* === COVER === */
+        .cover {
+            justify-content: center;
+            padding: 60px 56px !important;
+        }
+        .cover .vol {
+            font-family: var(--font-body);
+            font-size: 0.5em;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            margin-bottom: 3em;
+        }
+        .cover h1 {
+            font-size: 3.4em;
+            line-height: 0.98;
+            margin: 0 0 0.5em;
+            max-width: 95%;
+        }
+        .cover .sub {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1em;
+            color: var(--ink-mute);
+            max-width: 70%;
+            line-height: 1.4;
+            margin-bottom: 1.6em;
+        }
+        .cover .ornament {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.2em;
+            color: var(--accent);
+            margin: 0.8em 0;
+        }
+        .cover .credits {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-top: 1em;
+            border-top: 1px solid var(--ink);
+            font-size: 0.5em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            margin-top: 2em;
+        }
+        .cover .credits em { font-style: italic; color: var(--accent); }
+
+        /* === TOC === */
+        .toc h2 { font-size: 1.9em; margin-bottom: 0.8em; }
+        .toc ol { margin-top: 0.5em; }
+        .toc li {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            gap: 16px;
+            align-items: baseline;
+            padding: 0.55em 0;
+            border-top: 1px solid var(--rule);
+            font-family: var(--font-display);
+            font-size: 1em;
+        }
+        .toc li:last-child { border-bottom: 1px solid var(--rule); }
+        .toc li .rn {
+            font-style: italic;
+            color: var(--accent);
+            font-size: 0.95em;
+        }
+        .toc li .pg {
+            font-family: var(--font-body);
+            font-size: 0.55em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+        }
+
+        /* === DIVIDER === */
+        .divider {
+            justify-content: center;
+            align-items: center;
+            text-align: center !important;
+        }
+        .divider .rn {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            font-size: 1.4em;
+            margin-bottom: 0.4em;
+        }
+        .divider h1 {
+            font-size: 4em;
+            line-height: 1;
+            max-width: 88%;
+        }
+        .divider .sub {
+            margin-top: 1em;
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--ink-mute);
+            font-size: 0.9em;
+            max-width: 70%;
+        }
+        .divider .flourish {
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-size: 1.2em;
+            margin-top: 1em;
+            letter-spacing: 0.5em;
+        }
+
+        /* === HEADLINE === */
+        .headline h2 {
+            font-size: 2.4em;
+            max-width: 95%;
+            margin-bottom: 0.4em;
+        }
+        .headline .lede {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1em;
+            color: var(--ink-mute);
+            max-width: 85%;
+            margin-top: 0.6em;
+            line-height: 1.4;
+        }
+
+        /* === QUOTE === */
+        .quote-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center !important;
+        }
+        .quote-slide .marks {
+            font-family: var(--font-display);
+            font-size: 3.5em;
+            color: var(--accent);
+            line-height: 0.5;
+            margin-bottom: 0.3em;
+        }
+        .quote-slide blockquote {
+            font-family: var(--font-display);
+            font-size: 1.9em;
+            line-height: 1.2;
+            max-width: 88%;
+            font-weight: 400;
+            margin: 0;
+        }
+        .quote-slide blockquote em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .quote-slide .attribution {
+            margin-top: 1.4em;
+            font-size: 0.55em;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+        }
+
+        /* === THREE COLUMN === */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border-top: 1px solid var(--rule);
+            margin-top: 0.8em;
+        }
+        .three-col .col {
+            border-right: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            padding: 1.2em 1em;
+        }
+        .three-col .col:last-child { border-right: none; }
+        .three-col .col .n {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            font-size: 0.9em;
+            margin-bottom: 0.4em;
+            display: block;
+        }
+        .three-col .col h3 {
+            font-size: 1em;
+            margin-bottom: 0.5em;
+        }
+        .three-col .col p {
+            font-size: 0.72em;
+            color: var(--ink-mute);
+            line-height: 1.5;
+        }
+
+        /* === TWO COLUMN === */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 0.8em;
+            border-top: 1px solid var(--rule);
+            padding-top: 1em;
+        }
+        .two-col h3 {
+            font-size: 1.4em;
+            margin-bottom: 0.4em;
+        }
+        .two-col h3 em { font-style: italic; color: var(--accent); }
+        .two-col ul li {
+            font-family: var(--font-body);
+            font-size: 0.78em;
+            color: var(--ink);
+            padding: 0.4em 0;
+            border-bottom: 1px solid var(--rule-soft);
+        }
+        .two-col ul li:last-child { border-bottom: none; }
+
+        /* === TAGS === */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 1em;
+        }
+        .tags .tag {
+            font-family: var(--font-body);
+            font-size: 0.6em;
+            letter-spacing: 0.08em;
+            color: var(--ink);
+            padding: 0.45em 0.95em;
+            border: 1px solid var(--ink);
+            border-radius: 999px;
+            background: transparent;
+        }
+        .tags .tag.accent { color: var(--accent); border-color: var(--accent); }
+        .tags .tag.fill { background: var(--ink); color: var(--paper); }
+
+        /* === METRICS === */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--ink);
+            border-left: 1px solid var(--ink);
+            margin-top: 1em;
+        }
+        .metrics .m {
+            border-right: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink);
+            padding: 1.2em 0.8em;
+            text-align: center;
+            background: var(--paper);
+        }
+        .metrics .m .val {
+            font-family: var(--font-display);
+            font-size: 2.8em;
+            line-height: 1;
+            color: var(--accent);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+        .metrics .m .lbl {
+            font-size: 0.5em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            margin-top: 0.5em;
+        }
+
+        /* === PIPELINE === */
+        .pipeline {
+            margin-top: 0.8em;
+            border-top: 1px solid var(--ink);
+        }
+        .pipeline .step {
+            display: grid;
+            grid-template-columns: 44px 1fr 240px;
+            gap: 24px;
+            align-items: baseline;
+            padding: 0.55em 0;
+            border-bottom: 1px solid var(--rule);
+        }
+        .pipeline .step .n {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+        .pipeline .step .t {
+            font-family: var(--font-display);
+            font-size: 0.95em;
+            color: var(--ink);
+        }
+        .pipeline .step .d {
+            font-size: 0.62em;
+            color: var(--ink-mute);
+            font-family: var(--font-body);
+            line-height: 1.4;
+            text-align: right;
+        }
+
+        /* === BIG NUMBER === */
+        .big-num { text-align: center; padding: 0.4em 0; }
+        .big-num .val {
+            font-family: var(--font-display);
+            font-size: 7em;
+            line-height: 1;
+            color: var(--accent);
+            letter-spacing: -0.04em;
+            font-weight: 400;
+        }
+        .big-num .lbl {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1em;
+            color: var(--ink);
+            margin-top: 0.4em;
+        }
+
+        /* === EXAMPLE === */
+        .example .ex-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: 0.5em;
+            margin-bottom: 0.7em;
+            font-size: 0.5em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+        }
+        .example .ex-meta .rn {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            text-transform: none;
+            letter-spacing: -0.01em;
+            font-size: 1.2em;
+        }
+        .example h2 {
+            font-size: 1.85em;
+            max-width: 96%;
+            margin-bottom: 0.4em;
+            line-height: 1.05;
+        }
+        .example .deck {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--ink-mute);
+            font-size: 0.85em;
+            max-width: 92%;
+            margin-bottom: 0.7em;
+        }
+        .example .hook {
+            font-family: var(--font-display);
+            font-size: 1em;
+            line-height: 1.35;
+            color: var(--ink);
+            padding: 0.7em 1em;
+            background: var(--paper-2);
+            border-left: 3px solid var(--accent);
+            border-radius: 2px;
+            margin: 0.8em 0;
+            max-width: 96%;
+        }
+        .example .angle {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 22px;
+            padding-top: 0.7em;
+            border-top: 1px solid var(--rule);
+            font-size: 0.72em;
+            line-height: 1.5;
+        }
+        .example .angle .lbl {
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            color: var(--accent);
+        }
+        .example .angle .body { color: var(--ink-mute); }
+        .example .angle .body strong { color: var(--ink); }
+
+        /* === RECAP === */
+        .recap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-top: 1px solid var(--ink);
+            border-left: 1px solid var(--ink);
+            margin-top: 0.8em;
+        }
+        .recap-grid .item {
+            border-right: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink);
+            padding: 1.1em 1.3em;
+            background: var(--paper);
+        }
+        .recap-grid .item .rn {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            font-size: 0.9em;
+            margin-bottom: 0.4em;
+            display: block;
+        }
+        .recap-grid .item h3 {
+            font-size: 1.05em;
+            margin-bottom: 0.4em;
+        }
+        .recap-grid .item p {
+            font-size: 0.7em;
+            color: var(--ink-mute);
+            line-height: 1.5;
+        }
+
+        /* === SCRIPT BLOCK (pilot scenario) === */
+        .script .ex-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: 0.5em;
+            margin-bottom: 0.7em;
+            font-size: 0.5em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+        }
+        .script .ex-meta .rn {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--accent);
+            text-transform: none;
+            letter-spacing: -0.01em;
+            font-size: 1.2em;
+        }
+        .script .block-label {
+            font-family: var(--font-body);
+            display: inline-block;
+            font-size: 0.5em;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding: 0.4em 0.9em;
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            margin-bottom: 0.8em;
+        }
+        .script h2 {
+            font-size: 1.7em;
+            margin-bottom: 0.4em;
+            line-height: 1.1;
+        }
+        .script .lines {
+            font-family: var(--font-display);
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: var(--ink);
+            max-width: 95%;
+        }
+        .script .lines p {
+            margin: 0.45em 0;
+            line-height: 1.45;
+        }
+        .script .lines p.gap { margin-top: 1em; }
+        .script .lines em.warm {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .script .lines .quote-line {
+            font-style: italic;
+            color: var(--ink);
+        }
+        .script .disclaimer {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--ink-mute);
+            font-size: 1em;
+            line-height: 1.45;
+            max-width: 88%;
+            margin-top: 0.8em;
+        }
+        .script .disclaimer strong {
+            color: var(--accent);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        /* meta-card for pilot scenario intro */
+        .pilot-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-top: 1px solid var(--rule);
+            border-left: 1px solid var(--rule);
+            margin-top: 1em;
+        }
+        .pilot-meta .cell {
+            border-right: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            padding: 0.8em 1em;
+        }
+        .pilot-meta .cell .l {
+            font-size: 0.55em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            margin-bottom: 0.3em;
+        }
+        .pilot-meta .cell .v {
+            font-family: var(--font-display);
+            font-size: 0.95em;
+            color: var(--ink);
+            line-height: 1.3;
+        }
+        .pilot-meta .cell .v em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        /* === ENDING === */
+        .ending {
+            background: var(--paper-2);
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .ending h1 {
+            font-size: 3em;
+            max-width: 90%;
+            line-height: 1;
+        }
+        .ending .sub {
+            font-family: var(--font-display);
+            font-style: italic;
+            color: var(--ink-mute);
+            margin-top: 1em;
+            max-width: 70%;
+            font-size: 1em;
+            line-height: 1.4;
+        }
+        .ending .colophon {
+            margin-top: 2.4em;
+            padding-top: 1em;
+            border-top: 1px solid var(--ink);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.5em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+        }
+        .ending .colophon em {
+            font-style: italic;
+            color: var(--accent);
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* === REVEAL CHROME === */
+        .reveal .progress { color: var(--accent); height: 2px; }
+        .reveal .slide-number {
+            font-family: var(--font-display);
+            font-style: italic;
+            background: transparent;
+            color: var(--ink-mute);
+            font-size: 14px;
+            bottom: 12px;
+            right: 18px;
+        }
+        .reveal .controls { color: var(--ink-mute); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+    <!-- ============= 01 · COVER ============= -->
+    <section class="cover">
+        <div class="vol">Vol. 01 · Proposal · 2026</div>
+        <h1>Рилс-машина<br>для <em>бизнес</em>-адвоката.</h1>
+        <p class="sub">Как мы делаем ролики, которые смотрят не юристы — а ваши будущие клиенты.</p>
+        <div class="ornament">— ❦ —</div>
+        <div class="credits">
+            <span><em>Уля</em> · рилс-мейкер</span>
+            <span>для вас</span>
+            <span>СПб → Москва</span>
+        </div>
+    </section>
+
+    <!-- ============= 02 · TOC ============= -->
+    <section class="toc">
+        <span class="eyebrow muted">Содержание выпуска</span>
+        <h2>О чём <em>этот</em> разговор.</h2>
+        <ol>
+            <li><span class="rn">1.</span><span>Почему юристы тонут в рилс</span><span class="pg">часть 1</span></li>
+            <li><span class="rn">2.</span><span>Что мы делаем по-другому</span><span class="pg">часть 2</span></li>
+            <li><span class="rn">3.</span><span>Паспорт вашего голоса</span><span class="pg">часть 3</span></li>
+            <li><span class="rn">4.</span><span>Маршрут одного ролика</span><span class="pg">часть 4</span></li>
+            <li><span class="rn">5.</span><span>Истории, на которых стартуем</span><span class="pg">часть 5</span></li>
+            <li><span class="rn">6.</span><span>Следующая рубрика</span><span class="pg">часть 6</span></li>
+            <li><span class="rn">7.</span><span>Пилот · готовый сценарий</span><span class="pg">часть 7</span></li>
+            <li><span class="rn">8.</span><span>Что вы получаете</span><span class="pg">часть 8</span></li>
+        </ol>
+        <div class="runner"><span>Рилс-машина · <em>для&nbsp;вас</em></span><span>оглавление</span></div>
+    </section>
+
+    <!-- ============= 03 · DIVIDER 1 ============= -->
+    <section class="divider">
+        <div class="rn">1.</div>
+        <h1>Почему юристы<br><em>тонут</em> в рилс.</h1>
+        <p class="sub">Не потому что тема скучная. Потому что говорят не с теми.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 04 · ГЛАВНАЯ ПРОБЛЕМА ============= -->
+    <section class="headline">
+        <span class="eyebrow">часть 1 · проблема</span>
+        <h2>Юристы пишут<br>для <em>других</em> юристов.</h2>
+        <span class="rule"></span>
+        <p class="lede">Их понимают только коллеги. Зритель закрывает ролик на третьей секунде — он не понял ни слова и не увидел себя.</p>
+        <div class="runner"><span>1 · проблема</span><span>стр. 04</span></div>
+    </section>
+
+    <!-- ============= 05 · ТРИ ОШИБКИ ============= -->
+    <section class="headline">
+        <span class="eyebrow">три ошибки, из-за которых ролики не залетают</span>
+        <h2>Что именно <em>отталкивает</em> зрителя.</h2>
+        <div class="three-col">
+            <div class="col">
+                <span class="n">1.</span>
+                <h3>Канцелярит</h3>
+                <p>«В соответствии со статьёй...» — и зритель уже не с вами. Это язык документа, а не разговора.</p>
+            </div>
+            <div class="col">
+                <span class="n">2.</span>
+                <h3>Сложные термины</h3>
+                <p>Субсидиарка, цессия, виндикация. Для вас — очевидно. Для зрителя — стена.</p>
+            </div>
+            <div class="col">
+                <span class="n">3.</span>
+                <h3>Обобщение вместо конкретики</h3>
+                <p>Нет историй, лиц, цифр. Нечего пересказать другу за ужином — значит, не пересылается.</p>
+            </div>
+        </div>
+        <div class="runner"><span>1 · проблема</span><span>стр. 05</span></div>
+    </section>
+
+    <!-- ============= 06 · QUOTE ДРАМА ============= -->
+    <section class="quote-slide">
+        <div class="marks">“</div>
+        <blockquote>
+            В ваших нишах <em>драма уже есть</em>.<br>Её не нужно придумывать —<br>нужно правильно подать.
+        </blockquote>
+        <div class="attribution">экономические преступления · банкротство · недвижимость</div>
+        <div class="runner"><span>1 · проблема</span><span>стр. 06</span></div>
+    </section>
+
+    <!-- ============= 07 · DIVIDER 2 ============= -->
+    <section class="divider">
+        <div class="rn">2.</div>
+        <h1>Что мы делаем<br><em>по-другому</em>.</h1>
+        <p class="sub">Идеи берём снаружи. Слова и обороты — ваши.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 08 · ПРИНЦИП ============= -->
+    <section class="headline">
+        <span class="eyebrow">принцип №1</span>
+        <h2>Вдохновляемся, <em>не копируем</em>.</h2>
+        <span class="rule"></span>
+        <p class="lede">Мы не пересказываем чужие ролики. Мы берём громкую историю, которая уже взорвала инфополе на пяти языках — и переводим её в вашу плоскость, вашим голосом.</p>
+        <div class="runner"><span>2 · решение</span><span>стр. 08</span></div>
+    </section>
+
+    <!-- ============= 09 · ГДЕ ИЩУ ============= -->
+    <section class="headline">
+        <span class="eyebrow">источники</span>
+        <h2>Где я ищу <em>громкие</em> истории.</h2>
+        <div class="two-col">
+            <div>
+                <h3><em>5</em> языков</h3>
+                <ul>
+                    <li>русский</li>
+                    <li>английский</li>
+                    <li>испанский</li>
+                    <li>португальский</li>
+                    <li>немецкий</li>
+                </ul>
+            </div>
+            <div>
+                <h3><em>4</em> площадки + новости</h3>
+                <ul>
+                    <li>YouTube</li>
+                    <li>YouTube Shorts</li>
+                    <li>Instagram Reels</li>
+                    <li>TikTok</li>
+                    <li>новостные каналы</li>
+                </ul>
+            </div>
+        </div>
+        <div class="runner"><span>2 · решение</span><span>стр. 09</span></div>
+    </section>
+
+    <!-- ============= 10 · ЧТО ЦЕПЛЯЮ ============= -->
+    <section class="headline">
+        <span class="eyebrow">какие сюжеты</span>
+        <h2>Цепляющие истории,<br>которые <em>уже</em> взорвали инфополе.</h2>
+        <div class="tags">
+            <span class="tag accent">банкроты гигантов</span>
+            <span class="tag accent">рейдерские захваты</span>
+            <span class="tag accent">дикие судебные истории</span>
+            <span class="tag accent">международные кейсы</span>
+            <span class="tag accent">знаменитости, которые сели</span>
+        </div>
+        <div class="runner"><span>2 · решение</span><span>стр. 10</span></div>
+    </section>
+
+    <!-- ============= 11 · ФИЛЬТР ============= -->
+    <section class="headline">
+        <span class="eyebrow">фильтр под вашу нишу</span>
+        <h2>Из всего хайпа берём <em>только</em> то,<br>что про вас.</h2>
+        <div class="tags">
+            <span class="tag">ст. 159 · мошенничество</span>
+            <span class="tag">ст. 160 · присвоение</span>
+            <span class="tag">ст. 199 · уклонение</span>
+            <span class="tag">банкротство</span>
+            <span class="tag">субсидиарка</span>
+            <span class="tag">оспаривание сделок</span>
+            <span class="tag">споры о недвижимости</span>
+            <span class="tag">рейдерство</span>
+            <span class="tag">наследство</span>
+        </div>
+        <div class="runner"><span>2 · решение</span><span>стр. 11</span></div>
+    </section>
+
+    <!-- ============= 12 · QUOTE ФУНДАМЕНТ ============= -->
+    <section class="quote-slide">
+        <div class="marks">“</div>
+        <blockquote>
+            Стартуем с <em>фундамента</em>,<br>а не с гипотезы.
+        </blockquote>
+        <div class="attribution">тема, которая идёт в производство — уже доказала, что вызывает эмоцию</div>
+        <div class="runner"><span>2 · решение</span><span>стр. 12</span></div>
+    </section>
+
+    <!-- ============= 13 · DIVIDER 3 ============= -->
+    <section class="divider">
+        <div class="rn">3.</div>
+        <h1>Паспорт<br><em>вашего</em> голоса.</h1>
+        <p class="sub">Я уже разобрала ваш контент — до того, как мы начали работать.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 14 · ЦИФРЫ ============= -->
+    <section class="headline">
+        <span class="eyebrow">паспорт стиля</span>
+        <h2>Что я <em>уже</em> сделала<br>до старта работы.</h2>
+        <div class="metrics">
+            <div class="m"><div class="val">708</div><div class="lbl">постов в Telegram</div></div>
+            <div class="m"><div class="val">7</div><div class="lbl">приёмов письма</div></div>
+            <div class="m"><div class="val">40</div><div class="lbl">кейсов из практики</div></div>
+            <div class="m"><div class="val">32</div><div class="lbl">фирменных оборота</div></div>
+        </div>
+        <div class="runner"><span>3 · голос</span><span>стр. 14</span></div>
+    </section>
+
+    <!-- ============= 15 · ЧТО ЭТО ЗНАЧИТ ============= -->
+    <section class="headline">
+        <span class="eyebrow">что это значит на практике</span>
+        <h2>Я понимаю, как пишете <em>именно вы</em>.</h2>
+        <span class="rule"></span>
+        <p class="lede">Это паспорт вашего голоса. Каждый сценарий я сверяю по нему — чтобы текст звучал как вы сами в Telegram-канале. Те же приёмы, те же обороты, та же интонация.</p>
+        <div class="runner"><span>3 · голос</span><span>стр. 15</span></div>
+    </section>
+
+    <!-- ============= 16 · DIVIDER 4 ============= -->
+    <section class="divider">
+        <div class="rn">4.</div>
+        <h1>Маршрут<br><em>одного</em> ролика.</h1>
+        <p class="sub">От громкой темы в Сети — до публикации в ленте.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 17 · ТРИ ЗАХОДА (объяснение приёма) ============= -->
+    <section class="quote-slide">
+        <span class="eyebrow">приём №1 · вступление</span>
+        <blockquote style="font-size: 1.55em; margin-bottom: 0.5em;">
+            Самое опасное —<br>это <em>вступление</em>.
+        </blockquote>
+        <p style="font-family: var(--font-display); font-style: italic; color: var(--ink-mute); font-size: 1em; max-width: 70%;">
+            Поэтому к одному ролику мы пишем три разных вступления. Записываете один раз — а ленте уйдут три версии, и в нее войдёт тот, что залетел в тесте.
+        </p>
+        <div class="big-num" style="margin-top: 0.6em;">
+            <div class="val">×3</div>
+            <div class="lbl">шансов, что ролик залетит</div>
+        </div>
+        <div class="runner"><span>4 · маршрут</span><span>стр. 17</span></div>
+    </section>
+
+    <!-- ============= 18 · ТРИ ПЛОЩАДКИ ============= -->
+    <section class="headline">
+        <span class="eyebrow">приём №2 · охват</span>
+        <h2>Один раз записал —<br><em>контента очень много</em>.</h2>
+        <div class="tags" style="margin-top: 1.2em;">
+            <span class="tag fill">YouTube · Shorts</span>
+            <span class="tag fill">TikTok</span>
+            <span class="tag fill">Instagram Reels</span>
+        </div>
+        <span class="rule"></span>
+        <p class="lede">Публикуем на все три площадки. Собираем максимум. Алгоритмы разные — где-то залетит то, что не выстрелило в другом месте.</p>
+        <div class="runner"><span>4 · маршрут</span><span>стр. 18</span></div>
+    </section>
+
+    <!-- ============= 19 · ФАКТЧЕК ============= -->
+    <section class="headline">
+        <span class="eyebrow muted">важная оговорка</span>
+        <h2>Я <em>не</em> адвокат.</h2>
+        <span class="rule"></span>
+        <p class="lede">Поэтому каждый факт — перепроверяю. Каждую цифру — со ссылкой на первоисточник. Мы созваниваемся, и вы редактируете смыслы и закон. Под эфир выходит только то, под чем вы готовы подписаться.</p>
+        <p class="lede" style="margin-top: 0.7em;">Особенно в первые недели — будем сверяться плотно.</p>
+        <div class="runner"><span>4 · маршрут</span><span>стр. 19</span></div>
+    </section>
+
+    <!-- ============= 20 · PIPELINE (теперь после трёх заходов) ============= -->
+    <section class="headline">
+        <span class="eyebrow">маршрут целиком</span>
+        <h2>Восемь шагов <em>одного</em> ролика.</h2>
+        <div class="pipeline">
+            <div class="step"><div class="n">1.</div><div class="t">Ищу вирусную тему</div><div class="d">на 5 языках, по всем площадкам</div></div>
+            <div class="step"><div class="n">2.</div><div class="t">Адаптирую вашим голосом</div><div class="d">по паспорту: 7 приёмов, 32 оборота</div></div>
+            <div class="step"><div class="n">3.</div><div class="t">Перепроверяю каждый факт</div><div class="d">даю ссылки на первоисточники</div></div>
+            <div class="step"><div class="n">4.</div><div class="t">Созваниваемся</div><div class="d">вы сверяете смыслы и закон</div></div>
+            <div class="step"><div class="n">5.</div><div class="t">Пишу три крючка на один сценарий</div><div class="d">не один ролик — три захода</div></div>
+            <div class="step"><div class="n">6.</div><div class="t">Приезжает Данис, снимает</div><div class="d">своё оборудование, монтаж, обложки</div></div>
+            <div class="step"><div class="n">7.</div><div class="t">Тестовая публикация</div><div class="d">YouTube · TikTok · Instagram</div></div>
+            <div class="step"><div class="n">8.</div><div class="t">Лучший заход — в ленту</div><div class="d">тот, который залетел в тесте</div></div>
+        </div>
+        <div class="runner"><span>4 · маршрут</span><span>стр. 20</span></div>
+    </section>
+
+    <!-- ============= 21 · QUOTE ЛОГИКА ============= -->
+    <section class="quote-slide">
+        <div class="marks">“</div>
+        <blockquote style="font-size: 1.65em;">
+            Вирусный <em>крючок</em>,<br>ваша <em>экспертиза</em>,<br>российская <em>реальность</em>.
+        </blockquote>
+        <div class="attribution">структура каждого ролика</div>
+        <div class="runner"><span>4 · маршрут</span><span>стр. 21</span></div>
+    </section>
+
+    <!-- ============= 22 · DIVIDER 5 ============= -->
+    <section class="divider">
+        <div class="rn">5.</div>
+        <h1>Истории, на<br>которых <em>стартуем</em>.</h1>
+        <p class="sub">Пять громких сюжетов с прямым углом под вашу нишу.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 23 · ПРИМЕР 1 ИНДУСЫ ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">1.</span> · история первая</span><span>экономика · ст. 159 · AI</span></div>
+        <h2>700 индусов притворялись<br><em>искусственным интеллектом</em>.</h2>
+        <p class="deck">И развели Microsoft на полмиллиарда долларов. Стартап продавал «AI-разработчика», а внутри сидел call-центр в Бангалоре.</p>
+        <div class="hook">«AI, который оказался call-центром в Бангалоре. Где здесь мошенничество, а где — креативный маркетинг?»</div>
+        <div class="angle">
+            <div class="lbl">Ваш угол</div>
+            <div class="body"><strong>Ст. 159 в эпоху AI.</strong> Где обещание технологии заканчивается — и начинается уголовка. На каком этапе российский предприниматель переходит границу.</div>
+        </div>
+        <div class="runner"><span>5 · истории</span><span>стр. 23</span></div>
+    </section>
+
+    <!-- ============= 24 · ПРИМЕР 2 USDT ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">2.</span> · история вторая</span><span>экономика · крипта</span></div>
+        <h2>USDT ничего не производит.<br>Но получает <em>миллиарды</em>.</h2>
+        <p class="deck">400 миллионов человек кладут деньги, компания просто кладёт их в банк под процент. Самая прибыльная фирма на планете в пересчёте на сотрудника.</p>
+        <div class="hook">«Самая прибыльная компания планеты — а делает она… ничего. Как такое возможно и где здесь риски для держателей?»</div>
+        <div class="angle">
+            <div class="lbl">Ваш угол</div>
+            <div class="body"><strong>Российский предприниматель и USDT.</strong> Как отчитываться за оборот в стейблкоинах. Что считается доходом, а что — нет. Что будет, если придёт проверка.</div>
+        </div>
+        <div class="runner"><span>5 · истории</span><span>стр. 24</span></div>
+    </section>
+
+    <!-- ============= 25 · ПРИМЕР 3 ТРАМП ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">3.</span> · история третья</span><span>банкротство · политика</span></div>
+        <h2>У Трампа — <em>6 банкротств</em>.<br>И он президент США.</h2>
+        <p class="deck">В России после одного банкротства предпринимателя списывают. В Америке — становятся президентом.</p>
+        <div class="hook">«В России после одного банкротства тебя списывают. В Америке — становятся президентом. Почему так — и что реально теряет российский предприниматель?»</div>
+        <div class="angle">
+            <div class="lbl">Ваш угол</div>
+            <div class="body"><strong>Банкротство — не клеймо, а инструмент.</strong> Что реально теряет российский предприниматель, что можно сохранить, и почему банкротство иногда — единственный способ остаться в бизнесе.</div>
+        </div>
+        <div class="runner"><span>5 · истории</span><span>стр. 25</span></div>
+    </section>
+
+    <!-- ============= 26 · ПРИМЕР 4 ХОЛМС ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">4.</span> · история четвёртая</span><span>ст. 159 · инфобизнес</span></div>
+        <h2>Элизабет Холмс собрала <em>$9 млрд</em><br>под прибор, который не работал.</h2>
+        <p class="deck">11 лет тюрьмы. История о том, где маркетинг превращается в уголовку.</p>
+        <div class="hook">«Где в России заканчивается обещание предпринимателя клиентам — и начинается мошенничество в особо крупном?»</div>
+        <div class="angle">
+            <div class="lbl">Российская параллель</div>
+            <div class="body"><strong>Блиновская и другие инфокейсы.</strong> Та же логика — продано больше, чем существует. На каком моменте «продавать мечту» становится статьёй.</div>
+        </div>
+        <div class="runner"><span>5 · истории</span><span>стр. 26</span></div>
+    </section>
+
+    <!-- ============= 27 · ПРИМЕР 5 ЭВЕРГРАНДЭ ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">5.</span> · история пятая</span><span>недвижимость · банкротство застройщика</span></div>
+        <h2>Эверграндэ обанкротился<br>с долгом <em>$340 млрд</em>.</h2>
+        <p class="deck">Миллионы китайских дольщиков остались без квартир, за которые уже заплатили. Прямая ваша тема.</p>
+        <div class="hook">«Пока сосед бьётся в стену с надписью “обманутый дольщик” — вы можете успеть.»</div>
+        <div class="angle">
+            <div class="lbl">Ваш угол</div>
+            <div class="body"><strong>214-ФЗ, эскроу-счета, реестр требований кредиторов.</strong> Что делать дольщику, когда застройщик уходит в банкротство. Конкретные шаги — не «обратитесь к юристу», а к какому именно и с какой бумагой.</div>
+        </div>
+        <div class="runner"><span>5 · истории</span><span>стр. 27</span></div>
+    </section>
+
+    <!-- ============= 28 · DIVIDER 6 (новое название) ============= -->
+    <section class="divider">
+        <div class="rn">6.</div>
+        <h1>Следующая<br><em>рубрика</em>.</h1>
+        <p class="sub">Вирусный ролик, который набрал миллионы просмотров + ваша экспертиза.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 29 · ОБЪЯСНЕНИЕ ============= -->
+    <section class="headline">
+        <span class="eyebrow">как устроена рубрика</span>
+        <h2>Чужой <em>миллион</em> просмотров —<br>в вашу сторону.</h2>
+        <span class="rule"></span>
+        <p class="lede">Берём ролик, который уже набрал миллионы просмотров. Поверх — ваш голос. Кто несёт ответственность, как это расследовали бы, что было бы в России. Один кадр, который уже работает на алгоритм, превращается в вашу витрину.</p>
+        <div class="runner"><span>6 · следующая рубрика</span><span>стр. 29</span></div>
+    </section>
+
+    <!-- ============= 30 · ПАРАШЮТИСТ ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">1.</span> · ролик первый</span><span>ответственность · экстрим</span></div>
+        <h2>Парашютист в свободном падении.<br>Парашют <em>замотался</em>.</h2>
+        <p class="deck">Видеоряд страшный — досматривают все. Поверх — вы.</p>
+        <div class="hook">«Если бы он разбился — кто бы нёс ответственность? Инструктор? Школа? Производитель парашюта? Разбираю по полочкам.»</div>
+        <div class="angle">
+            <div class="lbl">Ваша экспертиза</div>
+            <div class="body">Кто платит, какая статья, как расследовали бы такое дело. <strong>Не общие фразы — конкретные ходы.</strong></div>
+        </div>
+        <div class="runner"><span>6 · следующая рубрика</span><span>стр. 30</span></div>
+    </section>
+
+    <!-- ============= 31 · ТРЕВИ ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">2.</span> · ролик второй</span><span>наследие · уголовка</span></div>
+        <h2>Девушка искупалась<br>в <em>фонтане Треви</em>.</h2>
+        <p class="deck">И получила реальный срок. Видео обошло весь интернет.</p>
+        <div class="hook">«В Италии — уголовка, в России — административка. Разница в одном решении судьи.»</div>
+        <div class="angle">
+            <div class="lbl">Ваша экспертиза</div>
+            <div class="body">Как объект культурного наследия защищён законом в РФ. <strong>Что реально грозит у нас за подобный «безобидный» поступок.</strong></div>
+        </div>
+        <div class="runner"><span>6 · следующая рубрика</span><span>стр. 31</span></div>
+    </section>
+
+    <!-- ============= 32 · ТРУП В БАНКЕ ============= -->
+    <section class="example">
+        <div class="ex-meta"><span><span class="rn">3.</span> · ролик третий</span><span>мошенничество · наследство</span></div>
+        <h2>Женщина в Бразилии пришла<br>в банк <em>с трупом</em>.</h2>
+        <p class="deck">Чтобы оформить на покойного кредит. Сотрудница банка засомневалась — её арестовали.</p>
+        <div class="hook">«А что было бы, если бы это случилось в России? У трупа есть наследники. А у наследников — долги.»</div>
+        <div class="angle">
+            <div class="lbl">Ваша экспертиза</div>
+            <div class="body"><strong>Наследство и долги покойного.</strong> Как кредитор приходит за наследниками. Что можно отказаться принимать — и какой ценой.</div>
+        </div>
+        <div class="runner"><span>6 · следующая рубрика</span><span>стр. 32</span></div>
+    </section>
+
+    <!-- ============= 33 · DIVIDER 7 PILOT ============= -->
+    <section class="divider">
+        <div class="rn">7.</div>
+        <h1>Пилот.<br><em>Готовый</em> сценарий.</h1>
+        <p class="sub">Третий ролик из рубрики выше — уже разложенный по полкам.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 34 · ДИСКЛЕЙМЕР ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">0.</span> · от Ули, начистоту</span><span>оговорка</span></div>
+        <h2>Я даю этот сценарий<br><em>на свой страх и риск</em>.</h2>
+        <p class="disclaimer">Мы ещё ни разу с вами не общались. Угадать ваш голос с первого раза — <strong>очень тяжело</strong>. Я опираюсь только на 708 ваших постов — и могу промахнуться в интонации.</p>
+        <p class="disclaimer">На созвоне всё перепишем под вас. Сейчас — каркас.</p>
+        <div class="runner"><span>7 · пилот</span><span>стр. 34</span></div>
+    </section>
+
+    <!-- ============= 35 · ТЕМА ПИЛОТА ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">1.</span> · тема пилота</span><span>наследство · банкротство умершего</span></div>
+        <h2>Женщина в Бразилии<br>пришла в банк <em>с трупом</em>.</h2>
+        <p class="deck" style="font-family: var(--font-display); font-style: italic; color: var(--ink-mute); font-size: 0.9em; margin-bottom: 0.4em;">Чтобы оформить на него кредит. Реальное видео — миллионы просмотров.</p>
+        <div class="pilot-meta">
+            <div class="cell"><div class="l">Формат</div><div class="v">зарисовка <em>+</em> сарказм <em>+</em> экспертный блок <em>+</em> каламбур</div></div>
+            <div class="cell"><div class="l">Длина</div><div class="v"><em>~</em> 60–70 секунд</div></div>
+            <div class="cell"><div class="l">Угол</div><div class="v">долги умершего и наследники в РФ</div></div>
+            <div class="cell"><div class="l">Статья</div><div class="v">ст. 223.1 закона <em>о</em> банкротстве</div></div>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 35</span></div>
+    </section>
+
+    <!-- ============= 36 · ЗАЧИН ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">2.</span> · зачин</span><span>зарисовка</span></div>
+        <span class="block-label">блок 1 · зачин</span>
+        <div class="lines">
+            <p>Зарисовка из бразильских новостей.</p>
+            <p class="gap">Сидит женщина в банке.<br>Рядом, в инвалидной коляске, − ее дядя.<br>С одним нюансом.<br>Дядя умер часа три назад.</p>
+            <p class="gap">Кредит на три тысячи долларов уже одобрен.<br>Дело за подписью.</p>
+            <p class="gap">Племянница подпирает ему голову и шепчет:<br><span class="quote-line">−«Дядя, подпиши. Иначе я не справлюсь».</span></p>
+            <p class="gap">Сотрудница банка засомневалась.<br>Скорая. Смерть.<br>Арест за мошенничество.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 36</span></div>
+    </section>
+
+    <!-- ============= 37 · МОСТИК ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">3.</span> · мостик</span><span>сарказм · фирменный приём</span></div>
+        <span class="block-label">блок 2 · мостик</span>
+        <div class="lines">
+            <p style="font-family: var(--font-display); font-size: 1.4em; line-height: 1.3;">А в России на такое и <em class="warm">мудрить не пришлось бы</em>.</p>
+            <p class="gap" style="font-family: var(--font-body); font-style: italic; color: var(--ink-mute); font-size: 0.8em; margin-top: 1.4em;">— переход от чужого случая в свою экспертизу, в вашем фирменном ироничном тоне.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 37</span></div>
+    </section>
+
+    <!-- ============= 38 · ЭКСПЕРТНЫЙ 1 ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">4.</span> · экспертный блок</span><span>часть 1 · вопрос и закон</span></div>
+        <span class="block-label">блок 3 · экспертиза</span>
+        <div class="lines">
+            <p style="font-family: var(--font-display); font-size: 1.3em; font-style: italic;">«А можно ли обанкротить труп?»</p>
+            <p class="gap" style="font-family: var(--font-display); font-size: 1.4em;"><em class="warm">Можно.</em></p>
+            <p class="gap">Статья <em class="warm">223.1</em> закона о банкротстве.</p>
+            <p class="gap" style="font-style: italic; color: var(--ink-mute);">Работает это так.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 38</span></div>
+    </section>
+
+    <!-- ============= 39 · ЭКСПЕРТНЫЙ 2 ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">5.</span> · экспертный блок</span><span>часть 2 · кто запускает</span></div>
+        <span class="block-label">блок 3 · экспертиза (продолжение)</span>
+        <div class="lines">
+            <p>Заявление в суд подает сам наследник, кредитор или нотариус.<br>Долгов должно быть <em class="warm">от 500 тысяч</em>.</p>
+            <p class="gap">Дальше за дело берется <em class="warm">финансовый управляющий</em> − специальный человек, которого назначает суд.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 39</span></div>
+    </section>
+
+    <!-- ============= 40 · ЭКСПЕРТНЫЙ 3 ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">6.</span> · экспертный блок</span><span>часть 3 · имущество и торги</span></div>
+        <span class="block-label">блок 3 · экспертиза (продолжение)</span>
+        <div class="lines">
+            <p>Он собирает все имущество умершего.<br>Квартиру, машину, счета в банках, гараж, дачу − все, что есть.</p>
+            <p class="gap">И продает на торгах.</p>
+            <p class="gap">Никакой рассрочки и новых графиков выплат тут не бывает.<br><em class="warm">Мертвец план погашения не подпишет)))</em></p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 40</span></div>
+    </section>
+
+    <!-- ============= 41 · ЭКСПЕРТНЫЙ 4 ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">7.</span> · экспертный блок</span><span>часть 4 · очередь выплат</span></div>
+        <span class="block-label">блок 3 · экспертиза (финал)</span>
+        <div class="lines">
+            <p>Из вырученных денег платят <em class="warm">по очереди</em>.</p>
+            <p class="gap">Сначала похороны.<br>Потом охрана и оценка наследства.<br>Потом нотариус и сам финансовый управляющий.<br>А уже после всех − <em class="warm">банки и другие кредиторы</em>.</p>
+            <p class="gap">Если денег хватило − все получили свое.<br>Если нет − банк просто списывает.<br>Требовать с наследника личное имущество запрещено.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 41</span></div>
+    </section>
+
+    <!-- ============= 42 · ФИНАЛ ============= -->
+    <section class="script">
+        <div class="ex-meta"><span><span class="rn">8.</span> · финал</span><span>что достается наследнику</span></div>
+        <span class="block-label">блок 4 · финал</span>
+        <div class="lines">
+            <p>Наследнику в итоге достается то, что осталось после расчетов.<br><em class="warm">Без долгов</em> перед банками.</p>
+            <p class="gap">Но − только в пределах того, что унаследовали.</p>
+            <p class="gap" style="font-family: var(--font-display); font-size: 1.15em; font-style: italic;">Унаследовал «Жигули» за двести тысяч −<br>на двести тысяч и отвечаешь.</p>
+        </div>
+        <div class="runner"><span>7 · пилот</span><span>стр. 42 · конец · <em style="color: var(--accent);">~</em>60 сек</span></div>
+    </section>
+
+    <!-- ============= 42 · DIVIDER 8 ============= -->
+    <section class="divider">
+        <div class="rn">8.</div>
+        <h1>Что вы<br><em>получаете</em>.</h1>
+        <p class="sub">Резюме механики — в одной странице.</p>
+        <div class="flourish">✦ ✦ ✦</div>
+    </section>
+
+    <!-- ============= 43 · RECAP ============= -->
+    <section class="headline">
+        <span class="eyebrow">резюме механики</span>
+        <h2>Что <em>в&nbsp;сумме</em>.</h2>
+        <div class="recap-grid">
+            <div class="item">
+                <span class="rn">1.</span>
+                <h3>Темы, которые уже работают</h3>
+                <p>Стартуем не с гипотезы, а с факта. Тема уже вызвала эмоцию у миллионов — мы переводим её в вашу плоскость.</p>
+            </div>
+            <div class="item">
+                <span class="rn">2.</span>
+                <h3>Голос — ваш</h3>
+                <p>Каждый сценарий сверяется по паспорту: 708 постов, 7 приёмов, 32 оборота. Звучит как вы, а не как «юрист вообще».</p>
+            </div>
+            <div class="item">
+                <span class="rn">3.</span>
+                <h3>Три захода → ×3 шансов</h3>
+                <p>На один съёмочный день — три варианта вступления. В ленту идёт тот, который залетел в тесте.</p>
+            </div>
+            <div class="item">
+                <span class="rn">4.</span>
+                <h3>Фактчек на каждом шаге</h3>
+                <p>Я даю ссылки на источники. Вы редактируете смыслы и закон. Под эфир выходит только то, под чем вы готовы подписаться.</p>
+            </div>
+        </div>
+        <div class="runner"><span>8 · итог</span><span>стр. 44</span></div>
+    </section>
+
+    <!-- ============= 44 · ENDING ============= -->
+    <section class="ending">
+        <span class="eyebrow">следующий шаг</span>
+        <h1>Стартуем<br>с <em>этого сценария</em>?</h1>
+        <p class="sub">Созваниваемся, разбираем по полкам, вы редактируете под себя — и в съёмку с Данисом.</p>
+        <div class="colophon">
+            <span><em>Уля</em> · рилс-мейкер</span>
+            <span>vol. 01 · proposal · 2026</span>
+            <span>— ❦ —</span>
+        </div>
+    </section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: 'c/t',
+        transition: 'none',
+        transitionSpeed: 'default',
+        backgroundTransition: 'none',
+        controls: true,
+        progress: true,
+        center: false,
+        width: 1280,
+        height: 900,
+        margin: 0.04,
+        minScale: 0.2,
+        maxScale: 2.0
+    });
+</script>
+</body>
+</html>
